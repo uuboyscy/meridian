@@ -22,6 +22,7 @@ from typing import TypeAlias
 
 __all__ = [
     "DateRangeBucketer",
+    "WeeklyDateRangeGenerator",
     "MonthlyDateRangeGenerator",
     "QuarterlyDateRangeGenerator",
     "YearlyDateRangeGenerator",
@@ -64,6 +65,24 @@ class DateRangeBucketer(abc.ABC):
       An iterator over generated `TimeInterval`s.
     """
     raise NotImplementedError()
+
+
+class WeeklyDateRangeGenerator(DateRangeBucketer):
+  """Generates weekly date intervals."""
+
+  def generate_date_intervals(self) -> Iterator[DateInterval]:
+    start_date = self._input_dates[0]
+
+    for date in self._input_dates:
+      # Check if we have moved to a new week.
+      # isocalendar returns (year, week_number, weekday).
+      if date.isocalendar()[:2] != start_date.isocalendar()[:2]:
+        # We are in a new week.
+        # Check if the start_date was a Monday (weekday 0).
+        if start_date.weekday() == 0:
+          yield (start_date, date)
+
+        start_date = date
 
 
 class MonthlyDateRangeGenerator(DateRangeBucketer):
