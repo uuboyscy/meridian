@@ -18,6 +18,56 @@ from absl.testing import absltest
 from schema.utils import date_range_bucketing
 
 
+class WeeklyDateRangeGeneratorTest(absltest.TestCase):
+
+  def test_generate_date_intervals_skips_intervals_not_starting_on_monday(
+      self,
+  ):
+    # 2023-01-01 is Sunday, 2023-01-02 is Monday.
+    input_dates = [
+        datetime.date(2023, 1, 1), # Sunday
+        datetime.date(2023, 1, 2), # Monday
+        datetime.date(2023, 1, 9), # Monday
+    ]
+    # Expected:
+    # 1. Start=Jan 1(Sun). Interval ends at Jan 2(Mon) (new week). Jan 1 != Mon. Skip.
+    # 2. Start=Jan 2(Mon). Interval ends at Jan 9(Mon) (new week). Jan 2 == Mon. Yield (Jan 2, Jan 9).
+    expected_date_intervals = [
+        (datetime.date(2023, 1, 2), datetime.date(2023, 1, 9)),
+    ]
+
+    date_intervals = list(
+        date_range_bucketing.WeeklyDateRangeGenerator(
+            input_dates
+        ).generate_date_intervals()
+    )
+
+    self.assertSequenceEqual(date_intervals, expected_date_intervals)
+
+  def test_generate_date_intervals_handles_gaps(
+      self,
+  ):
+    # 2023-01-02 (Mon) ... 2023-01-16 (Mon). Gap skip Jan 9.
+    input_dates = [
+        datetime.date(2023, 1, 2), # Mon
+        datetime.date(2023, 1, 3), # Tue
+        datetime.date(2023, 1, 16), # Mon (2 weeks later)
+    ]
+    # 1. Start=Jan 2. Interval ends at Jan 16 (new week). Jan 2 == Mon. Yield (Jan 2, Jan 16).
+
+    expected_date_intervals = [
+        (datetime.date(2023, 1, 2), datetime.date(2023, 1, 16)),
+    ]
+
+    date_intervals = list(
+        date_range_bucketing.WeeklyDateRangeGenerator(
+            input_dates
+        ).generate_date_intervals()
+    )
+
+    self.assertSequenceEqual(date_intervals, expected_date_intervals)
+
+
 class MonthlyDateRangeGeneratorTest(absltest.TestCase):
 
   def test_generate_date_intervals_skips_first_interval_if_not_start_of_month(
