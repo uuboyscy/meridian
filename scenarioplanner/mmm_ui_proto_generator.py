@@ -63,6 +63,7 @@ _DATE_RANGE_GENERATORS = frozenset({
     date_range_bucketing.MonthlyDateRangeGenerator,
     date_range_bucketing.QuarterlyDateRangeGenerator,
     date_range_bucketing.YearlyDateRangeGenerator,
+    date_range_bucketing.WeeklyDateRangeGenerator,
 })
 
 SpecType = TypeVar("SpecType", bound=model_processor.Spec)
@@ -93,7 +94,7 @@ class MmmUiProtoGenerator:
       breakdown is only done on Marketing Analysis specs and Budget Optimization
       specs. All other specs are processed in their original forms. The set of
       default bucketers break down sub-specs with the following time periods:
-      [All (original spec's time period), Yearly, Quarterly, Monthly]
+      [All (original spec's time period), Yearly, Quarterly, Monthly, Weekly]
   """
 
   def __init__(
@@ -254,7 +255,7 @@ def create_mmm_ui_data_proto(
       breakdown is only done on Marketing Analysis specs and Budget Optimization
       specs. All other specs are processed in their original forms. The set of
       default bucketers break down sub-specs with the following time periods:
-      [All (original spec's time period), Yearly, Quarterly, Monthly]
+      [All (original spec's time period), Yearly, Quarterly, Monthly, Weekly]
 
   Returns:
     A proto containing the model kernel at rest and its analysis results given
