@@ -279,6 +279,8 @@ def create_tag(
     return f"Y{start_date.year} Q{(start_date.month - 1) // 3 + 1}"
   elif generator_class == date_range_bucketing.MonthlyDateRangeGenerator:
     return f"Y{start_date.year} {start_date.strftime('%b')}"
+  elif generator_class == date_range_bucketing.WeeklyDateRangeGenerator:
+    return f"Y{start_date.year} W{start_date.isocalendar()[1]}"
   else:
     raise ValueError(f"Unsupported generator class: {generator_class}")
 
